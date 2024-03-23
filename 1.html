@@ -1,0 +1,267 @@
+<!doctype html>
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NZFK5ZLWG1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-NZFK5ZLWG1');
+</script>
+
+<title>WEB1 - html </title>
+<meta charset="utf-8">
+</head>
+
+<body>
+    <h1><a href="index.html">WEB</a></h1>
+<ol>
+    <li><a href="1.html">HTML</a></li>
+    <li><a href="2.html">CSS</a></li>
+    <li><a href="3.html">Javascript</a></li>
+</ol>
+
+<h2>HTML이란 무엇인가? 수정본 HELLO</h2>
+
+<p>
+    <iframe width="417" height="741" src="https://www.youtube.com/embed/CD_P9j5QHS0" title="2024년 3월 23일" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</p>
+
+
+<p><strong>HyperText Markup Language or <u> HTML</u> </strong> is the standard <a href="https://en.wikipedia.org/wiki/HTML" target="_blank" title="html5 specification" >markup language</a> for documents designed to be displayed in a web browser. It defines the content and structure of web content. It is often assisted by technologies such as Cascading Style Sheets (CSS) and scripting languages such as JavaScript.
+</p>
+<p>Web browsers receive HTML documents from a web server or from local storage and render the documents into multimedia web pages. HTML describes the structure of a web page semantically and originally included cues for its appearance.
+</p>
+<p>HTML elements are the building blocks of HTML pages. With HTML constructs, images and other objects such as interactive forms may be embedded into the rendered page. HTML provides a means to create structured documents by denoting structural semantics for text such as headings, paragraphs, lists, links, quotes, and other items. HTML elements are delineated by tags, written using angle brackets.
+</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+    #canvas_div {
+        text-align: center;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    canvas {
+      border: 2px solid black;
+    }
+    </style>
+    
+    <div id="canvas_div" style="overflow-x: auto;">
+    <canvas id="canvas" width="900" height="360"></canvas>
+    <button onclick="javascript:clearArea();return false;">Clear Area</button>
+    Line width : <select id="selWidth">
+        <option value="11">11</option>
+        <option value="13" selected="selected">13</option>
+        <option value="15">15</option>
+    </select>
+    Color : <select id="selColor">
+        <option value="black">black</option>
+        <option value="blue" selected="selected">blue</option>
+        <option value="red">red</option>
+        <option value="green">green</option>
+        <option value="yellow">yellow</option>
+        <option value="gray">gray</option>
+    </select>
+    </div>
+    
+    <script>
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    let isDrawing = false;
+    let x = 0;
+    let y = 0;
+    var offsetX;
+    var offsetY;
+    
+    function startup() {
+      canvas.addEventListener('touchstart', handleStart);
+      canvas.addEventListener('touchend', handleEnd);
+      canvas.addEventListener('touchcancel', handleCancel);
+      canvas.addEventListener('touchmove', handleMove);
+      canvas.addEventListener('mousedown', (e) => {
+        x = e.offsetX;
+        y = e.offsetY;
+        isDrawing = true;
+      });
+    
+      canvas.addEventListener('mousemove', (e) => {
+        if (isDrawing) {
+          drawLine(context, x, y, e.offsetX, e.offsetY);
+          x = e.offsetX;
+          y = e.offsetY;
+        }
+      });
+    
+      canvas.addEventListener('mouseup', (e) => {
+        if (isDrawing) {
+          drawLine(context, x, y, e.offsetX, e.offsetY);
+          x = 0;
+          y = 0;
+          isDrawing = false;
+        }
+      });
+    }
+    
+    document.addEventListener("DOMContentLoaded", startup);
+    
+    const ongoingTouches = [];
+    
+    function handleStart(evt) {
+      evt.preventDefault();
+      const touches = evt.changedTouches;
+      offsetX = canvas.getBoundingClientRect().left;
+      offsetY = canvas.getBoundingClientRect().top;
+      for (let i = 0; i < touches.length; i++) {
+        ongoingTouches.push(copyTouch(touches[i]));
+      }
+    }
+    
+    function handleMove(evt) {
+      evt.preventDefault();
+      const touches = evt.changedTouches;
+      for (let i = 0; i < touches.length; i++) {
+        const color = document.getElementById('selColor').value;
+        const idx = ongoingTouchIndexById(touches[i].identifier);
+        if (idx >= 0) {
+          context.beginPath();
+          context.moveTo(ongoingTouches[idx].clientX - offsetX, ongoingTouches[idx].clientY - offsetY);
+          context.lineTo(touches[i].clientX - offsetX, touches[i].clientY - offsetY);
+          context.lineWidth = document.getElementById('selWidth').value;
+          context.strokeStyle = color;
+          context.lineJoin = "round";
+          context.closePath();
+          context.stroke();
+          ongoingTouches.splice(idx, 1, copyTouch(touches[i]));  // swap in the new touch record
+        }
+      }
+    }
+    
+    function handleEnd(evt) {
+      evt.preventDefault();
+      const touches = evt.changedTouches;
+      for (let i = 0; i < touches.length; i++) {
+        const color = document.getElementById('selColor').value;
+        let idx = ongoingTouchIndexById(touches[i].identifier);
+        if (idx >= 0) {
+          context.lineWidth = document.getElementById('selWidth').value;
+          context.fillStyle = color;
+          ongoingTouches.splice(idx, 1);  // remove it; we're done
+        }
+      }
+    }
+    
+    function handleCancel(evt) {
+      evt.preventDefault();
+      const touches = evt.changedTouches;
+      for (let i = 0; i < touches.length; i++) {
+        let idx = ongoingTouchIndexById(touches[i].identifier);
+        ongoingTouches.splice(idx, 1);  // remove it; we're done
+      }
+    }
+    
+    function copyTouch({ identifier, clientX, clientY }) {
+      return { identifier, clientX, clientY };
+    }
+    
+    function ongoingTouchIndexById(idToFind) {
+      for (let i = 0; i < ongoingTouches.length; i++) {
+        const id = ongoingTouches[i].identifier;
+        if (id === idToFind) {
+          return i;
+        }
+      }
+      return -1;    // not found
+    }
+    
+    function drawLine(context, x1, y1, x2, y2) {
+      context.beginPath();
+      context.strokeStyle = document.getElementById('selColor').value;
+      context.lineWidth = document.getElementById('selWidth').value;
+      context.lineJoin = "round";
+      context.moveTo(x1, y1);
+      context.lineTo(x2, y2);
+      context.closePath();
+      context.stroke();
+    }
+    
+    function clearArea() {
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    }
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/65f52a0e9317c54371287bb9/1hp2qoibk';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+    </script>
+    <!--End of Tawk.to Script-->
+
+
+</body>
